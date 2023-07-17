@@ -12,8 +12,8 @@ jobs:
       - name: Autenticando no Docker Registry
         uses: docker/login-action@v2.2.0
         with:
-          username: ${{ secrets.DOCKERHUB_USR }}
-          password: ${{ secrets.DOCKERHUB_PWD }}
+          username: rmlswin@gmail.com
+          password: 30041995@Moraes!
       - name: Docker build - IMAGEM APP CONVERSAO
         uses: docker/build-push-action@v4.1.1
         with:
