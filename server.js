@@ -6,7 +6,6 @@ const bodyParser = require('body-parser');
 const config = require('./config/system-life');
 const path = require('path');
 
-#comment
 
 app.use(config.middlewares.healthMid);
 app.use('/', config.routers);
