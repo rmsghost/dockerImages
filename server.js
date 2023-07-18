@@ -7,6 +7,10 @@ const config = require('./config/system-life');
 const path = require('path');
 const client = require('prom-client');
 
+const swStats = require('swagger-stats');
+//const apiSpec = require('swagger.json');
+//app.use(swStats.getMiddleware({swaggerSpec:apiSpec}));
+
 const register = new client.Registry();
 
 const http_request_counter = new client.Counter({
@@ -21,7 +25,7 @@ const httpRequestTimer = new client.Histogram({
 	name: 'http_request_duration_seconds',
 	help: 'Duration HTTP',
 	labelNames: ['method', 'route', 'code'],
-	buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10]
+	//buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10]
 
 });
 register.registerMetric(httpRequestTimer);
@@ -35,15 +39,18 @@ app.use(function(req, res, next)
 })
 
 
-
 register.setDefaultLabels({ 
-	app: 'your-app-name'
+	app: 'API-LOOK'
 })
 client.collectDefaultMetrics({register});
 
+
 app.get('/metrics', async (req, res) => {
+    const end = httpRequestTimer.startTimer();
+    const route = req.route.path;
     res.setHeader('Content-Type', register.contentType);
     res.send(await register.metrics());
+    end({route, code: res.statusCode, method: req.method});
 });
 
 
