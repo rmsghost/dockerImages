@@ -24,7 +24,7 @@ const httpRequestTimer = new client.Histogram({
 	buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10]
 
 });
-register.registerMetric(httpRequestTime);
+register.registerMetric(httpRequestTimer);
 
 
 app.use(function(req, res, next)
