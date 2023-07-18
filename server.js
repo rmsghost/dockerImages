@@ -17,6 +17,16 @@ const http_request_counter = new client.Counter({
 register.registerMetric(http_request_counter);
 
 
+const httpRequestTimer = new client.Histogram({
+	name: 'http_request_duration_seconds',
+	help: 'Duration HTTP',
+	labelNames: ['method', 'route', 'code'],
+	buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10]
+
+});
+register.registerMetric(httpRequestTime);
+
+
 app.use(function(req, res, next)
 {
     // Increment the HTTP request counter
