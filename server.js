@@ -10,7 +10,7 @@ const client = require('prom-client');
 const register = new client.Registry();
 
 const http_request_counter = new client.Counter({
-	name: 'name_App',
+	name: 'http_request_counter',
 	help: 'Metricas de http',
 	labelNames: ['method', 'route', 'statusCode'],
 });
