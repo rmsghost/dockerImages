@@ -9,30 +9,48 @@ const client = require('prom-client');
 
 const register = new client.Registry();
 
-client.collectDefaultMetrics({
-    app: 'node-application-monitoring-app',
-    prefix: 'node_',
-    timeout: 10000,
-    gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5],
-    register
+const http_request_counter = new client.Counter({
+	name: 'name_App',
+	help: 'Metricas de http',
+	labelNames: ['method', 'route', 'statusCode'],
 });
+register.registerMetric(http_request_counter);
 
-app.use(config.middlewares.healthMid);
-app.use('/', config.routers);
-app.use(bodyParser.urlencoded({ extended: false }))
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
+
+app.use(function(req, res, next)
+{
+    // Increment the HTTP request counter
+    http_request_counter.labels({method: req.method, route: req.originalUrl, statusCode: res.statusCode}).inc();
+    next();
+})
+
+
+
+register.setDefaultLabels({ 
+	app: 'your-app-name'
+})
+client.collectDefaultMetrics({register});
 
 app.get('/metrics', async (req, res) => {
     res.setHeader('Content-Type', register.contentType);
     res.send(await register.metrics());
 });
 
-app.get('/fahrenheit/:valor/celsius', (req, res) => {
 
+
+
+app.use('/', config.routers);
+app.use(bodyParser.urlencoded({ extended: false }))
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
+
+app.get('/fahrenheit/:valor/celsius', (req, res) => {
     let valor = req.params.valor;
     let celsius = conversor.fahrenheitCelsius(valor);
     res.json({ "celsius": celsius, "maquina": os.hostname() });
+    res.set('Content-Type', client.register.contenType);
+    res.end(client.register.metrics());
 });
 
 app.get('/celsius/:valor/fahrenheit', (req, res) => {
@@ -62,10 +80,7 @@ app.post('/', (req, res) => {
  });
 
 
-
-
-
-
 app.listen(8080, () => {
     console.log("Servidor rodando na porta 8080");
 });
+
